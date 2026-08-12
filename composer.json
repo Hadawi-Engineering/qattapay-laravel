@@ -1,0 +1,87 @@
+{
+    "name": "qattapay/laravel",
+    "description": "Official QattaPay Laravel SDK — group contribution checkout for your storefront",
+    "type": "library",
+    "license": "MIT",
+    "keywords": [
+        "qattapay",
+        "hadawi",
+        "laravel",
+        "checkout",
+        "group-contribution",
+        "payment",
+        "sdk",
+        "saudi"
+    ],
+    "authors": [
+        {
+            "name": "Hadawi Engineering",
+            "homepage": "https://qatta.sa"
+        }
+    ],
+    "homepage": "https://github.com/Hadawi-Engineering/qattapay-laravel",
+    "support": {
+        "issues": "https://github.com/Hadawi-Engineering/qattapay-laravel/issues",
+        "source": "https://github.com/Hadawi-Engineering/qattapay-laravel",
+        "docs": "https://qatta.sa/docs/sdk"
+    },
+    "require": {
+        "php": "^8.2",
+        "illuminate/contracts": "^10.0|^11.0|^12.0",
+        "illuminate/http": "^10.0|^11.0|^12.0",
+        "illuminate/support": "^10.0|^11.0|^12.0",
+        "illuminate/view": "^10.0|^11.0|^12.0"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^8.0|^9.0|^10.0",
+        "phpunit/phpunit": "^10.5|^11.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "QattaPay\\Laravel\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "QattaPay\\Laravel\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "QattaPay\\Laravel\\QattaPayServiceProvider"
+            ],
+            "aliases": {
+                "QattaPay": "QattaPay\\Laravel\\Facades\\QattaPay"
+            }
+        },
+        "branch-alias": {
+            "dev-main": "1.x-dev"
+        }
+    },
+    "scripts": {
+        "test": "phpunit"
+    },
+    "archive": {
+        "exclude": [
+            "/vendor",
+            "/tests",
+            "/dist",
+            "/.phpunit.cache",
+            "/phpunit.xml",
+            "/composer.lock",
+            "/PUBLISHING.md",
+            "/.gitignore",
+            "/.gitattributes",
+            "/.github"
+        ]
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true,
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "php-http/discovery": true
+        }
+    }
+}

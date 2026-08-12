@@ -1,0 +1,187 @@
+# QattaPay Laravel SDK
+
+Official [QattaPay](https://qatta.sa) SDK for Laravel — add group contribution checkout to any storefront.
+
+```bash
+composer require qattapay/laravel
+```
+
+QattaPay lets groups of people split the cost of a purchase. This package handles:
+
+- **Server-side**: creating checkout intents and managing orders with your merchant API key
+- **Webhooks**: verifying and parsing events when a session is funded
+- **Blade**: official branded checkout buttons (via the `@hadawi/sdk` browser bundle)
+
+Parity with the Node SDK [`@hadawi/sdk`](https://www.npmjs.com/package/@hadawi/sdk).
+
+---
+
+## Requirements
+
+- PHP 8.2+
+- Laravel 10, 11, or 12
+
+---
+
+## Installation
+
+```bash
+composer require qattapay/laravel
+```
+
+The service provider and `QattaPay` facade are auto-discovered.
+
+Publish the config (optional):
+
+```bash
+php artisan vendor:publish --tag=qattapay-config
+```
+
+---
+
+## Configuration
+
+Add to your `.env`:
+
+```env
+QATTAPAY_API_KEY=your_api_key
+QATTAPAY_WEBHOOK_SECRET=whsec_...
+QATTAPAY_MODE=dev
+# QATTAPAY_BASE_URL=http://localhost:4000   # optional local override
+# QATTAPAY_BROWSER_SDK_VERSION=1.1.5        # jsDelivr pin for the button
+```
+
+| Key | Description |
+| --- | --- |
+| `api_key` | Merchant API key from the QattaPay dashboard |
+| `webhook_secret` | `whsec_…` signing secret (Developer → Webhook) |
+| `mode` | `dev` or `live` (ignored if `base_url` is set) |
+| `base_url` | Explicit API base (e.g. local) — disables host fallback |
+| `browser_sdk_version` | `@hadawi/sdk` version loaded for `<x-qattapay-button>` |
+
+Amounts are always integers in the **smallest currency unit** (halalas for SAR — e.g. `15000` = 150.00 SAR).
+
+---
+
+## Quick start
+
+### 1 — Create an intent (server)
+
+```php
+use QattaPay\Laravel\Facades\QattaPay;
+
+Route::post('/qattapay/intent', function () {
+    $result = QattaPay::intents()->create([
+        'itemSnapshot' => [
+            [
+                'name' => 'Luxury Watch',
+                'price' => 150000,
+                'reference' => 'watch-001',
+            ],
+        ],
+        'totalAmount' => 150000,
+        'currency' => 'SAR',
+        'metadata' => ['cart_id' => 'abc'],
+    ]);
+
+    return [
+        'intentId' => $result['intent']['id'],
+    ];
+})->middleware('web')->name('qattapay.intent');
+```
+
+### 2 — Mount the branded button (Blade)
+
+```blade
+<x-qattapay-button
+    intent-url="{{ route('qattapay.intent') }}"
+    mode="{{ config('qattapay.mode') }}"
+    variant="primary"
+    label="split"
+    open-mode="popup"
+    success-url="{{ url('/thank-you') }}"
+/>
+```
+
+Ensure your layout includes the CSRF meta tag:
+
+```blade
+<meta name="csrf-token" content="{{ csrf_token() }}">
+```
+
+### 3 — Handle webhooks
+
+```php
+use Illuminate\Http\Request;
+use QattaPay\Laravel\Facades\QattaPay;
+
+Route::post('/webhooks/qattapay', function (Request $request) {
+    $event = $request->attributes->get('qattapay_event');
+
+    if ($event['type'] === 'order.funded') {
+        $orderId = $event['payload']['order_id'] ?? null;
+        if ($orderId) {
+            QattaPay::orders()->fulfill($orderId);
+        }
+    }
+
+    return response()->noContent();
+})->middleware('qattapay.webhook');
+```
+
+---
+
+## API reference
+
+### Intents
+
+```php
+QattaPay::intents()->create([/* ... */]);
+QattaPay::intents()->get($intentId);
+```
+
+### Orders
+
+```php
+QattaPay::orders()->list();
+QattaPay::orders()->get($orderId);
+QattaPay::orders()->fulfill($orderId);
+QattaPay::orders()->deliver($orderId);
+```
+
+### Webhooks
+
+```php
+QattaPay::webhooks()->verifySignature($rawBody, $signature);
+QattaPay::webhooks()->constructEvent($rawBody, $signature);
+```
+
+Event types: `order.funded`, `order.partially_funded`, `order.cancelled`, `order.expired`.
+
+---
+
+## Host resolution
+
+| Mode | Primary | Fallback (network errors only) |
+| ---- | ------- | ------------------------------ |
+| `dev` | `https://dev.qatta.sa/api` | `https://dev.hadawi.sa/api` |
+| `live` | `https://qatta.sa/api` | `https://beta.hadawi.sa/api` |
+
+---
+
+## Development
+
+```bash
+composer install
+composer test
+```
+
+## Publishing
+
+See [PUBLISHING.md](./PUBLISHING.md) (`vX.Y.Z` tags → Packagist).
+
+---
+
+## License
+
+MIT © Hadawi Engineering
