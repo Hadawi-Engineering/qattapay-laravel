@@ -62,6 +62,6 @@ return [
     |
     */
 
-    'browser_sdk_version' => env('QATTAPAY_BROWSER_SDK_VERSION', '1.1.5'),
+    'browser_sdk_version' => env('QATTAPAY_BROWSER_SDK_VERSION', '1.1.6'),
 
 ];

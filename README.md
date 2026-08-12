@@ -48,7 +48,7 @@ QATTAPAY_API_KEY=your_api_key
 QATTAPAY_WEBHOOK_SECRET=whsec_...
 QATTAPAY_MODE=dev
 # QATTAPAY_BASE_URL=http://localhost:4000   # optional local override
-# QATTAPAY_BROWSER_SDK_VERSION=1.1.5        # jsDelivr pin for the button
+# QATTAPAY_BROWSER_SDK_VERSION=1.1.6        # jsDelivr pin for the button
 ```
 
 | Key | Description |
@@ -93,6 +93,7 @@ Route::post('/qattapay/intent', function () {
 ### 2 — Mount the branded button (Blade)
 
 ```blade
+{{-- Popup: success-url runs after qattapay:success postMessage --}}
 <x-qattapay-button
     intent-url="{{ route('qattapay.intent') }}"
     mode="{{ config('qattapay.mode') }}"
@@ -100,8 +101,27 @@ Route::post('/qattapay/intent', function () {
     label="split"
     open-mode="popup"
     success-url="{{ url('/thank-you') }}"
+    return-url="{{ url('/thank-you') }}"
 />
 ```
+
+```blade
+{{-- Redirect: hosted checkout sends the shopper back to return-url --}}
+<x-qattapay-button
+    intent-url="{{ route('qattapay.intent') }}"
+    mode="{{ config('qattapay.mode') }}"
+    variant="primary"
+    label="split"
+    open-mode="redirect"
+    return-url="{{ url('/thank-you') }}"
+/>
+```
+
+| Attribute | Purpose |
+| --- | --- |
+| `success-url` | After popup `onSuccess` (`qattapay:success`), navigate here |
+| `return-url` | Passed to hosted checkout as `?returnUrl=`. After payment, QattaPay redirects here with `intentId`, `sessionId`, and `status=success\|cancel\|failed`. Use for **redirect** mode (and as a popup fallback). |
+| `open-mode` | `popup` (default) or `redirect` |
 
 Ensure your layout includes the CSRF meta tag:
 
@@ -179,13 +199,13 @@ composer test
 ## Publishing
 
 Package: [packagist.org/packages/qattapay/laravel](https://packagist.org/packages/qattapay/laravel)  
-Latest release: [`v1.0.0`](https://github.com/Hadawi-Engineering/qattapay-laravel/releases/tag/v1.0.0)
+Latest release: [`v1.0.1`](https://github.com/Hadawi-Engineering/qattapay-laravel/releases/tag/v1.0.1)
 
 To ship a new version, bump the changelog, push `main`, then tag:
 
 ```bash
-git tag v1.0.1
-git push origin v1.0.1
+git tag v1.0.2
+git push origin v1.0.2
 ```
 
 Packagist updates automatically via the GitHub webhook. Full checklist: [PUBLISHING.md](./PUBLISHING.md).
