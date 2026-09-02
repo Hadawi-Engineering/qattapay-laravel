@@ -2,6 +2,12 @@
 
 All notable changes to `qattapay/laravel` are documented here.
 
+## 1.1.1 — 2026-09-02
+
+### Fixed
+
+- Orders test no longer calls a non-existent `Request::has()` on Laravel's HTTP client fake.
+
 ## 1.1.0 — 2026-09-02
 
 ### Added

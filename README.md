@@ -227,13 +227,13 @@ composer test
 ## Publishing
 
 Package: [packagist.org/packages/qattapay/laravel](https://packagist.org/packages/qattapay/laravel)  
-Latest release: [`v1.1.0`](https://github.com/Hadawi-Engineering/qattapay-laravel/releases/tag/v1.1.0)
+Latest release: [`v1.1.1`](https://github.com/Hadawi-Engineering/qattapay-laravel/releases/tag/v1.1.1)
 
 To ship a new version, bump the changelog, push `main`, then tag:
 
 ```bash
-git tag v1.1.0
-git push origin v1.1.0
+git tag v1.1.1
+git push origin v1.1.1
 ```
 
 Packagist updates automatically via the GitHub webhook. Full checklist: [PUBLISHING.md](./PUBLISHING.md).

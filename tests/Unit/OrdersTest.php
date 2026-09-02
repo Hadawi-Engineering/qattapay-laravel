@@ -77,9 +77,11 @@ class OrdersTest extends TestCase
         $this->client()->orders()->refundContribution('ord_1', 'c_9');
 
         Http::assertSent(function ($request) {
+            $data = $request->data();
+
             return $request->method() === 'POST'
                 && str_ends_with($request->url(), '/orders/ord_1/contributions/c_9/refund')
-                && ! $request->has('reason');
+                && ! array_key_exists('reason', $data);
         });
     }
 }
