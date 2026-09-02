@@ -56,4 +56,50 @@ class Orders
         /** @var array<string, mixed> */
         return $this->http->request('PATCH', '/orders/'.rawurlencode($orderId).'/deliver');
     }
+
+    /**
+     * Refund every captured contribution on this order and notify contributors.
+     * Blocked once the order has already been included in a payout — the API
+     * responds with a 400 in that case.
+     *
+     * @param  array{reason?: string}|null  $options
+     * @return array{message: string}
+     */
+    public function refund(string $orderId, ?array $options = null): array
+    {
+        /** @var array{message: string} */
+        return $this->http->request(
+            'POST',
+            '/orders/'.rawurlencode($orderId).'/refund',
+            $this->refundBody($options),
+        );
+    }
+
+    /**
+     * Refund a single contributor within this order (a partial refund).
+     * Same payout/status guards as {@see refund()}.
+     *
+     * @param  array{reason?: string}|null  $options
+     * @return array{message: string}
+     */
+    public function refundContribution(string $orderId, string $contributionId, ?array $options = null): array
+    {
+        /** @var array{message: string} */
+        return $this->http->request(
+            'POST',
+            '/orders/'.rawurlencode($orderId).'/contributions/'.rawurlencode($contributionId).'/refund',
+            $this->refundBody($options),
+        );
+    }
+
+    /**
+     * @param  array{reason?: string}|null  $options
+     * @return array{reason?: string}
+     */
+    private function refundBody(?array $options): array
+    {
+        $reason = isset($options['reason']) ? trim((string) $options['reason']) : '';
+
+        return $reason !== '' ? ['reason' => $reason] : [];
+    }
 }

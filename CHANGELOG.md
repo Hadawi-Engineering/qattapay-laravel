@@ -2,6 +2,17 @@
 
 All notable changes to `qattapay/laravel` are documented here.
 
+## 1.1.0 — 2026-09-02
+
+### Added
+
+- **`QattaPay::orders()->refund($orderId, ['reason' => …])`** — refund every captured contribution on an order (parity with `@hadawi/sdk` `orders.refund()`).
+- **`QattaPay::orders()->refundContribution($orderId, $contributionId, ['reason' => …])`** — refund a single contributor (parity with `orders.refundContribution()`).
+
+### Docs
+
+- Document order status transitions (`fulfill` / `deliver`) and refunds in the README.
+
 ## 1.0.1 — 2026-08-12
 
 ### Docs

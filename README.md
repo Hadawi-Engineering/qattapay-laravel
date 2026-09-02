@@ -162,12 +162,40 @@ QattaPay::intents()->get($intentId);
 
 ### Orders
 
+These map to the same dashboard actions as **Mark as Fulfilling** / **Mark as Delivered**. Call them from your backend — they are not optional for merchants who want their own OMS in sync, but QattaPay does not require them before payout.
+
 ```php
+// List all orders
 QattaPay::orders()->list();
+
+// Get detail (includes contribution breakdown)
 QattaPay::orders()->get($orderId);
+
+// funded / notified → fulfilling
 QattaPay::orders()->fulfill($orderId);
+
+// fulfilling → delivered
 QattaPay::orders()->deliver($orderId);
+
+// Refund every captured contribution (blocked once the order is in a payout)
+QattaPay::orders()->refund($orderId, ['reason' => 'Out of stock']);
+
+// Refund a single contributor
+QattaPay::orders()->refundContribution($orderId, $contributionId, [
+    'reason' => 'Contributor requested to back out',
+]);
 ```
+
+Order status lifecycle:
+
+```
+pending_funding → funded → notified → fulfilling → delivered
+                         ↘ cancelled
+```
+
+`fulfill()` only works from `funded` or `notified`. `deliver()` only works from `fulfilling`.
+
+Refunds process synchronously against the original payment method and notify each affected contributor. They are rejected (HTTP 400) when the order is already in a payout, or the session is already `refunding` / `refunded` / `cancelled`.
 
 ### Webhooks
 
@@ -199,13 +227,13 @@ composer test
 ## Publishing
 
 Package: [packagist.org/packages/qattapay/laravel](https://packagist.org/packages/qattapay/laravel)  
-Latest release: [`v1.0.1`](https://github.com/Hadawi-Engineering/qattapay-laravel/releases/tag/v1.0.1)
+Latest release: [`v1.1.0`](https://github.com/Hadawi-Engineering/qattapay-laravel/releases/tag/v1.1.0)
 
 To ship a new version, bump the changelog, push `main`, then tag:
 
 ```bash
-git tag v1.0.2
-git push origin v1.0.2
+git tag v1.1.0
+git push origin v1.1.0
 ```
 
 Packagist updates automatically via the GitHub webhook. Full checklist: [PUBLISHING.md](./PUBLISHING.md).
