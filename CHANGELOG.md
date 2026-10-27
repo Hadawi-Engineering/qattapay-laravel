@@ -2,6 +2,12 @@
 
 All notable changes to `qattapay/laravel` are documented here.
 
+## Unreleased
+
+### Docs
+
+- Document the `byProduct` split mode. `QattaPay::orders()->get()` returns `order.session.splitMode === 'byProduct'` and each contribution's `invitation.assignedItems` (indexes into `order.session.itemSnapshot`). No code changes — the organizer picks it on hosted checkout.
+
 ## 1.1.1 — 2026-09-02
 
 ### Fixed

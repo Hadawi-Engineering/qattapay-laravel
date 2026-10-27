@@ -197,6 +197,32 @@ pending_funding → funded → notified → fulfilling → delivered
 
 Refunds process synchronously against the original payment method and notify each affected contributor. They are rejected (HTTP 400) when the order is already in a payout, or the session is already `refunding` / `refunded` / `cancelled`.
 
+### Split modes
+
+The organizer picks how the group splits the total on the hosted checkout — nothing extra to pass when creating the intent.
+
+| Mode        | Behaviour                                                                          |
+| ----------- | ---------------------------------------------------------------------------------- |
+| `equal`     | Everyone pays the same share.                                                      |
+| `flexible`  | Each person chooses their own amount.                                              |
+| `byProduct` | The organizer assigns each item to one person; each pays for their items. Offered for carts with 2+ items. |
+
+With `byProduct`, anything the total carries beyond the item prices is split equally. Sessions are invite-only. On `QattaPay::orders()->get($orderId)`, `order.session.splitMode` is `byProduct` and each contribution's `invitation.assignedItems` lists the indexes into `session.itemSnapshot` that person paid for:
+
+```php
+['order' => $order, 'contributions' => $contributions] = QattaPay::orders()->get($orderId);
+
+if (($order['session']['splitMode'] ?? null) === 'byProduct') {
+    foreach ($contributions as $c) {
+        $names = array_map(
+            fn ($i) => $order['session']['itemSnapshot'][$i]['name'],
+            $c['invitation']['assignedItems'] ?? [],
+        );
+        logger()->info($c['invitation']['inviteePhone'].' paid for '.implode(', ', $names));
+    }
+}
+```
+
 ### Webhooks
 
 ```php
